@@ -1,7 +1,0 @@
-name: ICENSO Actions Probe
-on: [push]
-jobs:
-  probe:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "ICENSO Actions OK"
