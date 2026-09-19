@@ -1,0 +1,101 @@
+name: Import ICENSO V1.11
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import production site and apply V1.11
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError, URLError
+
+          BASE="https://icenso-site.vercel.app"
+          pages={
+            "/":"index.html",
+            "/collection":"collection.html",
+            "/about":"about.html",
+            "/partners":"partners.html",
+            "/contact":"contact.html",
+            "/admin":"admin.html",
+            "/brand":"brand.html",
+            "/lookbook":"lookbook.html",
+            "/stores":"stores.html",
+          }
+
+          def fetch(path):
+              req=Request(BASE+path,headers={"User-Agent":"ICENSO-GitHub-Import/1.0"})
+              with urlopen(req,timeout=90) as r:
+                  return r.status,r.read()
+
+          for route,dest in pages.items():
+              try:
+                  status,data=fetch(route)
+              except Exception as e:
+                  if route in {"/admin","/brand","/lookbook","/stores"}:
+                      print("skip",route,e)
+                      continue
+                  raise
+              if status!=200:
+                  if route in {"/admin","/brand","/lookbook","/stores"}:
+                      print("skip",route,status)
+                      continue
+                  raise RuntimeError(f"{route}: HTTP {status}")
+              p=Path(dest); p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(data)
+
+          static={
+            "/assets/css/site-v1.9.css":"assets/css/site-v1.9.css",
+            "/assets/js/site-v1.9.js":"assets/js/site-v1.9.js",
+            "/assets/images/icenso-logo-final-transparent-v2.png":"assets/images/icenso-logo-final-transparent-v2.png",
+          }
+          for i in range(1,38):
+              static[f"/assets/images/fw26-final-{i:02d}.jpeg"]=f"assets/images/fw26-final-{i:02d}.jpeg"
+
+          for route,dest in static.items():
+              status,data=fetch(route)
+              if status!=200: raise RuntimeError(f"{route}: HTTP {status}")
+              p=Path(dest); p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(data)
+
+          p=Path("index.html")
+          html=p.read_text(encoding="utf-8")
+          before='<div class="strip-copy">Looks para todos<br/>os momentos.<span>Estilo que inspira mudança.</span></div>'
+          after='<div class="strip-copy">Looks para todos<br/>os momentos</div>'
+          if before in html:
+              html=html.replace(before,after,1)
+          elif 'Estilo que inspira mudança.' in html or 'os momentos.' in html:
+              html=html.replace('<span>Estilo que inspira mudança.</span>','').replace('os momentos.','os momentos',1)
+          p.write_text(html,encoding="utf-8")
+
+          Path("vercel.json").write_text('{"cleanUrls":true,"trailingSlash":false}\n',encoding="utf-8")
+          Path(".gitignore").write_text(".DS_Store\n*.zip\n",encoding="utf-8")
+          Path("README.md").write_text("""# ICENSO JEANS
+
+Site oficial ICENSO JEANS.
+
+- Fonte versionada em Git
+- Branch de produção: main
+- Deploy: Vercel
+- Versão atual: V1.11
+""",encoding="utf-8")
+          PY
+
+      - name: Commit V1.11
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Import ICENSO V1.11 complete site" || exit 0
+          git push
