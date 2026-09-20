@@ -1,0 +1,16 @@
+{
+  "name": "ICENSO JEANS",
+  "short_name": "ICENSO",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f6f1",
+  "theme_color": "#f7f6f1",
+  "icons": [
+    {
+      "src": "/assets/images/icenso-logo-final-transparent-v2.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
