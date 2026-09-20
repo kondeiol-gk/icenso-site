@@ -1,1 +1,26 @@
-{"cleanUrls":true,"trailingSlash":false}
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/pt",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/PT",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/en",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/EN",
+      "destination": "/",
+      "permanent": false
+    }
+  ]
+}
