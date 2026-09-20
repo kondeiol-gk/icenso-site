@@ -1,3 +1,16 @@
+// ICENSO_APP_HOME_START
+const ICENSO_STANDALONE =
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true;
+
+if (ICENSO_STANDALONE) {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  const sameOriginReferrer = document.referrer.startsWith(window.location.origin);
+  if (path !== '/' && !sameOriginReferrer) {
+    window.location.replace('/');
+  }
+}
+
 const ICENSO_IS_MOBILE = window.matchMedia('(max-width: 900px)').matches;
 if (ICENSO_IS_MOBILE) {
   document.querySelector('.topbar')?.remove();
