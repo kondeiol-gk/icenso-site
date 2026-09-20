@@ -1,3 +1,8 @@
+const ICENSO_IS_MOBILE = window.matchMedia('(max-width: 900px)').matches;
+if (ICENSO_IS_MOBILE) {
+  document.querySelector('.topbar')?.remove();
+}
+
 const drawer = document.querySelector('.mobile-drawer');
 const menuButtons = [...document.querySelectorAll('.menu-toggle')];
 
@@ -51,8 +56,11 @@ if (searchBtn && searchPanel) {
 }
 
 const lang = document.querySelector('[data-lang]');
-if (lang) {
-  lang.addEventListener('click', () => {
+if (lang && !ICENSO_IS_MOBILE) {
+  lang.type = 'button';
+  lang.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     const en = document.documentElement.dataset.lang === 'en';
     document.documentElement.dataset.lang = en ? 'pt' : 'en';
     lang.textContent = en ? 'EN' : 'PT';
@@ -85,3 +93,9 @@ document.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
 }, true);
+
+
+// ICENSO_SAFE_BUTTON_TYPES
+document.querySelectorAll('button:not([type])').forEach((button) => {
+  if (!button.closest('form')) button.type = 'button';
+});
