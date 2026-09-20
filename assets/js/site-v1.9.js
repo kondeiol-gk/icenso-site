@@ -70,3 +70,18 @@ document.querySelectorAll('[data-filter]').forEach((btn) => btn.addEventListener
     card.style.display = (filter === 'all' || card.dataset.look === filter) ? 'block' : 'none';
   });
 }));
+
+
+// ICENSO: photographs are visual-only; prevent accidental image navigation.
+document.addEventListener('click', (event) => {
+  const photo = event.target.closest('img');
+  if (!photo || photo.closest('.brand')) return;
+
+  const visualArea = photo.closest(
+    '.hero, .home-strip, .collection-hero, .gallery, .story-hero, .story-image, .product-card'
+  );
+  if (!visualArea) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
